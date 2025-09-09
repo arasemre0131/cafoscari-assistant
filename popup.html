@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 450px;
+      height: 600px;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .header {
+      background: white;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .header h1 {
+      font-size: 22px;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    .header p {
+      font-size: 14px;
+      color: #666;
+    }
+    .tabs {
+      display: flex;
+      background: white;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      background: white;
+      border: none;
+      font-size: 14px;
+      color: #666;
+    }
+    .tab.active {
+      color: #667eea;
+      border-bottom: 2px solid #667eea;
+    }
+    .content {
+      padding: 20px;
+      height: calc(100% - 140px);
+      overflow-y: auto;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* Claude Chat */
+    .claude-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .messages {
+      flex: 1;
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+    }
+    .message {
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .message.user {
+      background: #667eea;
+      color: white;
+      margin-left: 50px;
+    }
+    .message.assistant {
+      background: #f0f0f0;
+      margin-right: 50px;
+    }
+    .input-area {
+      display: flex;
+      gap: 10px;
+    }
+    .input-area input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .input-area button {
+      padding: 12px 20px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    
+    /* Dashboard */
+    .dashboard-grid {
+      display: grid;
+      gap: 15px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .card h3 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 15px;
+    }
+    .card button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .card button:hover {
+      background: #5a67d8;
+    }
+    
+    /* Settings */
+    .settings-form {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .save-btn {
+      width: 100%;
+      padding: 12px;
+      background: #34c759;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .status {
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: inline-block;
+      margin-left: 10px;
+    }
+    .status.connected {
+      background: #d1f2d9;
+      color: #248a3d;
+    }
+    .status.disconnected {
+      background: #ffd6d6;
+      color: #d70015;
+    }
+    
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .quick-btn {
+      padding: 8px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .quick-btn:hover {
+      background: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎓 Ca' Foscari Assistant</h1>
+    <p>Hoş geldin, Emre Aras!</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('dashboard')">Dashboard</button>
+    <button class="tab" onclick="switchTab('claude')">Claude AI</button>
+    <button class="tab" onclick="switchTab('settings')">Ayarlar</button>
+  </div>
+
+  <div class="content">
+    <!-- Dashboard Tab -->
+    <div id="dashboard" class="tab-content active">
+      <div class="dashboard-grid">
+        <div class="card">
+          <h3>📚 Moodle</h3>
+          <div id="moodleStatus" class="status disconnected">Bağlı değil</div>
+          <button onclick="syncMoodle()">Dersleri Senkronla</button>
+          <button onclick="openMoodle()">Moodle'a Git</button>
+        </div>
+
+        <div class="card">
+          <h3>📧 Gmail</h3>
+          <div id="gmailStatus" class="status disconnected">Bağlı değil</div>
+          <button onclick="checkEmails()">Mailleri Kontrol Et</button>
+          <button onclick="openGmail()">Gmail'e Git</button>
+        </div>
+
+        <div class="card">
+          <h3>🎯 Hızlı İşlemler</h3>
+          <button onclick="generateMockExam()">Mock Exam Oluştur</button>
+          <button onclick="createStudyPlan()">Çalışma Planı</button>
+          <button onclick="checkDeadlines()">Deadline Kontrolü</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Claude Tab -->
+    <div id="claude" class="tab-content">
+      <div class="claude-container">
+        <div class="messages" id="messages">
+          <div class="message assistant">
+            Merhaba Emre! Ben senin AI asistanınım. Derslerinle ilgili her konuda yardımcı olabilirim. Ne öğrenmek istersin?
+          </div>
+        </div>
+        
+        <div class="quick-actions">
+          <button class="quick-btn" onclick="quickPrompt('exam')">📝 Mock Exam</button>
+          <button class="quick-btn" onclick="quickPrompt('study')">📚 Çalışma Planı</button>
+          <button class="quick-btn" onclick="quickPrompt('explain')">💡 Konu Anlat</button>
+          <button class="quick-btn" onclick="quickPrompt('homework')">📖 Ödev Yardım</button>
+        </div>
+        
+        <div class="input-area">
+          <input type="text" id="claudeInput" placeholder="Soruyu yaz..." onkeypress="if(event.key==='Enter') sendToClaude()">
+          <button onclick="sendToClaude()">Gönder</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="settings" class="tab-content">
+      <div class="settings-form">
+        <div class="form-group">
+          <label>📚 Moodle Token</label>
+          <input type="text" id="moodleToken" placeholder="Moodle token'ını gir">
+          <small style="color: #999; font-size: 12px;">
+            moodle.unive.it → Profil → Preferences → Security → Manage tokens
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>📧 Gmail API Key</label>
+          <input type="text" id="gmailApiKey" placeholder="Gmail API key (opsiyonel)">
+        </div>
+
+        <div class="form-group">
+          <label>🏫 Öğrenci Numarası</label>
+          <input type="text" id="studentId" value="907842" placeholder="907842">
+        </div>
+
+        <div class="form-group">
+          <label>🔐 Unive Şifresi</label>
+          <input type="password" id="univePassword" placeholder="Unive şifren">
+        </div>
+
+        <div class="form-group">
+          <label>🤖 Claude Oturum</label>
+          <div style="padding: 10px; background: #e8f5e9; border-radius: 8px;">
+            <p style="color: #2e7d32; font-size: 13px; margin: 0;">
+              ✓ Claude'u senin hesabınla kullanıyoruz<br>
+              ✓ 5 saatlik limitin otomatik kullanılacak<br>
+              ✓ API key'e gerek yok
+            </p>
+          </div>
+          <button onclick="connectClaude()" style="margin-top: 10px;">Claude'a Bağlan</button>
+        </div>
+
+        <button class="save-btn" onclick="saveSettings()">Ayarları Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
